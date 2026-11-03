@@ -85,8 +85,8 @@ All protocol contracts are deployed and verified on **BNB Smart Chain (Chain ID:
 
 ## 🛡 Security & Governance Transparency
 
-1. **Rug-Pull Immunity**: LP positions are locked permanently upon creation. The locker contract has no code path to remove or burn active liquidity.
-2. **Immutable Token Logic**: Tokens have no owner, no tax logic, and no minting mechanism post-deployment.
+1. **Permanent LP Lock (Existing Launches)**: For all launched tokens, LP positions are deposited and locked permanently in `BSCookLocker`. The contract contains no code path to withdraw, burn, or reduce active liquidity once locked.
+2. **Immutable Token Logic**: Deployed tokens have no owner, no transfer tax logic, and no post-deployment minting capability.
 3. **Admin Token Safety**: `BSCookFactory.rescueERC20` contains explicit safeguards forbidding the rescue of launched tokens or WBNB.
 4. **Future Locker Migration Vector**: The protocol owner can call `queueLockerChange` with a mandatory 2-day queue delay (`LOCKER_CHANGE_DELAY = 2 days`). Existing launched tokens and their LP positions remain permanently locked in their original locker. However, *future* tokens launched after the 2-day queue would deposit LP into the new locker address. Integrators and token buyers should monitor the `LockerChangeQueued` event.
 5. **MultiSig Governance**: Requires 2-of-3 threshold consensus. If keys are not held by independent parties, effective decentralization is reduced.
