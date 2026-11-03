@@ -1,7 +1,7 @@
 {
   "name": "bscook-contracts",
   "version": "1.0.0",
-  "description": "Smart contracts for BSCook Launchpad on BNB Smart Chain",
+  "description": "Smart contracts for BSCook Launchpad on BNB Smart Chain with Uniswap V4 integration",
   "type": "module",
   "scripts": {
     "compile": "hardhat compile",
@@ -14,7 +14,8 @@
     "smart-contracts",
     "solidity",
     "erc20",
-    "liquidity-locker"
+    "liquidity-locker",
+    "uniswap-v4"
   ],
   "author": "BSCook Team",
   "license": "MIT",
