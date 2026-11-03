@@ -9,13 +9,13 @@
 
 Official smart contract repository for **BSCook**, a decentralized fair-launch protocol on the **BNB Smart Chain (BSC)** utilizing a **Single-Sided Uniswap V4 Liquidity Architecture** with permanent, non-custodial LP locking.
 
-Unlike legacy launchpads that require external bonding curves and migration steps, BSCook seeds token liquidity directly into native **Uniswap V4** single-sided pools at block 1.
+Token liquidity is initialized directly into native **Uniswap V4** single-sided pools at block 1.
 
 ---
 
 ## 🏛 Architecture & Design
 
-The protocol is built around five core contracts designed for gas efficiency, rug-pull immunity, and decentralized governance:
+The on-chain protocol consists of five core smart contracts designed for gas efficiency, rug-pull immunity, and decentralized governance:
 
 ```
                 +-------------------+
@@ -57,7 +57,7 @@ The protocol is built around five core contracts designed for gas efficiency, ru
   - **Creator Fee Claims**: Allows token creators to claim their 75% share of pool trading fees without altering the underlying liquidity.
 
 * **`BSCookTimelock.sol`**
-  Time-delayed governance controller enforcing a 12 to 48-hour delay window on all critical administrative actions.
+  Time-delayed governance controller enforcing a 12 to 48-hour delay window on critical administrative actions.
 
 * **`BSCookMultiSig.sol`**
   2-of-3 threshold multi-signature contract governing emergency pause triggers and temporary fee-freeze disputes (capped at 7 days).
@@ -88,23 +88,6 @@ All protocol contracts are deployed and verified on **BNB Smart Chain (Chain ID:
 3. **Admin Token Safety**: `BSCookFactory.rescueERC20` contains explicit safeguards forbidding the rescue of launched tokens or WBNB.
 4. **Governed Upgrades**: Any future locker changes require `queueLockerChange` with a mandatory 2-day queue delay, affecting only future launches.
 5. **Compiler Specs**: Compiled with Solidity `0.8.20` using `--via-ir` and 800 optimizer runs.
-
----
-
-## 💻 Build & Verification
-
-### Prerequisites
-* [Node.js](https://nodejs.org/) (v18+)
-* [npm](https://www.npmjs.com/)
-
-### Installation & Compile
-
-```bash
-git clone https://github.com/bscook/bscook.git
-cd bscook
-npm install
-npx hardhat compile
-```
 
 ---
 
