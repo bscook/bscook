@@ -1,0 +1,26 @@
+{
+  "network": "BNB Smart Chain (BSC) Mainnet",
+  "chainId": 56,
+  "contracts": {
+    "BSCookFactory": {
+      "address": "0xe8a0beEEdd39af3a87De11d6b120D0fFa874867D",
+      "bscscan": "https://bscscan.com/address/0xe8a0beEEdd39af3a87De11d6b120D0fFa874867D#code"
+    },
+    "BSCookTokenImplementation": {
+      "address": "0x66aEfEE3B1f3163f036Aeee733035df09F49Fc02",
+      "bscscan": "https://bscscan.com/address/0x66aEfEE3B1f3163f036Aeee733035df09F49Fc02#code"
+    },
+    "BSCookLocker": {
+      "address": "0x3a8587057f85eb318F52c2C9ae148940741CFCfD",
+      "bscscan": "https://bscscan.com/address/0x3a8587057f85eb318F52c2C9ae148940741CFCfD#code"
+    },
+    "BSCookTimelock": {
+      "address": "0x4cec2C1DA4D2f460402aC38aF04Ed29D0C922c83",
+      "bscscan": "https://bscscan.com/address/0x4cec2C1DA4D2f460402aC38aF04Ed29D0C922c83#code"
+    },
+    "BSCookMultiSig": {
+      "address": "0xAa2699E1737052869c97a681d3d6d1C9b969120e",
+      "bscscan": "https://bscscan.com/address/0xAa2699E1737052869c97a681d3d6d1C9b969120e#code"
+    }
+  }
+}

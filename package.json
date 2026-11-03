@@ -1,0 +1,30 @@
+{
+  "name": "bscook-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for BSCook Launchpad on BNB Smart Chain",
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "keywords": [
+    "bnb-chain",
+    "bsc",
+    "launchpad",
+    "smart-contracts",
+    "solidity",
+    "erc20",
+    "liquidity-locker"
+  ],
+  "author": "BSCook Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.10.0",
+    "hardhat": "^2.22.0"
+  }
+}
