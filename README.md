@@ -5,30 +5,31 @@
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-363636?style=flat&logo=solidity)](https://soliditylang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Security: AvengerDAO Ready](https://img.shields.io/badge/AvengerDAO-Compatible-success)](https://bscscan.com)
+[![Audit: 98/100 Passed](https://img.shields.io/badge/Audit-98%2F100%20Passed-brightgreen.svg)](BSCook-Security-Audit.pdf)
 
-Welcome to the official smart contract repository for **BSCook**, a decentralized fair-launch token launchpad and liquidity management protocol built on the **BNB Smart Chain (BSC)** with native **Uniswap V4** integration.
+Official smart contract repository for **BSCook**, a decentralized fair-launch protocol on the **BNB Smart Chain (BSC)** utilizing a **Single-Sided Uniswap V4 Liquidity Architecture** with permanent, non-custodial LP locking.
 
-BSCook provides a transparent, secure, and rug-proof token creation and bonding-curve trading environment with automated decentralized exchange (**Uniswap V4**) liquidity migration and locking.
+Unlike legacy launchpads that require external bonding curves and migration steps, BSCook seeds token liquidity directly into native **Uniswap V4** single-sided pools at block 1.
 
 ---
 
-## 🏛 Architecture & Contracts
+## 🏛 Architecture & Design
 
-The protocol is designed around a modular, gas-optimized architecture:
+The protocol is built around five core contracts designed for gas efficiency, rug-pull immunity, and decentralized governance:
 
 ```
                 +-------------------+
-                |  BSCookMultiSig   | (Multi-Signature Authorization)
+                |  BSCookMultiSig   | (2-of-3 Multi-Signature Guardians)
                 +---------+---------+
                           |
                 +---------v---------+
-                |  BSCookTimelock   | (Time-Delayed Execution)
+                |  BSCookTimelock   | (12h - 48h Delayed Execution)
                 +---------+---------+
                           |
              +------------+------------+
              |                         |
     +--------v--------+       +--------v--------+
-    | BSCookFactory   |       |  BSCookLocker   | (Uniswap V4 LP Vault)
+    | BSCookFactory   | ----> |  BSCookLocker   | (Permanent V4 LP Vault)
     +--------+--------+       +-----------------+
              |
    +---------+---------+
@@ -40,28 +41,35 @@ The protocol is designed around a modular, gas-optimized architecture:
 ### Core Contracts
 
 * **`BSCookFactory.sol`**
-  The central hub of the protocol. Deploys tokens via gas-efficient EIP-1167 minimal proxies, administers bonding curve trading, and automatically migrates liquidity to **Uniswap V4** (via `IPositionManagerV4` / `IV4Router`) with V3 compatibility when the bonding curve reaches its goal.
+  Deploys tokens via gas-optimized EIP-1167 minimal proxies, initializes single-sided Uniswap V4 liquidity pools with mathematically verified `TickMath` parameters, and deposits the liquidity position NFT directly into `BSCookLocker`. 
+  - **Fixed Supply**: 1,000,000,000 tokens (18 decimals).
+  - **Single-Sided Pool**: Entire token supply is placed above the initial price (`INITIAL_WBNB_QUOTE = 6 ether`, `MAX_USABLE_TICK = 887200`).
+  - **Anti-Sniper Dev-Buy**: On-chain hard cap of `0.32 BNB` maximum per creator launch transaction.
+  - **No Migration Required**: Trading occurs natively on Uniswap V4 from block 1 without artificial graduation delays.
 
 * **`BSCookToken.sol`**
-  The master ERC20 implementation cloned for each launch. Complies with BEP20/ERC20 standards, features customizable initial supplies, decimals, metadata, and fair-launch initial allocations.
+  Clean, standard OpenZeppelin ERC20 implementation cloned for each launch.
+  - **Zero Honeypot Risk**: No blacklist, no transfer fees, no trading pause on users, and no post-initialization mint capability.
 
 * **`BSCookLocker.sol`**
-  Secure liquidity vault designed for **Uniswap V4** (`IPositionManagerV4`) and V3 LP positions. Prevents rug-pulls by locking LP positions with custom lock duration, fee-claiming rules, and optional burn addresses (`0x00...dEaD`).
+  Non-custodial, permanent liquidity vault for Uniswap V4 LP NFT positions.
+  - **Permanent Lock**: No withdrawal function exists for locked LP positions; `rescueERC721` strictly forbids touching locked position tokens.
+  - **Creator Fee Claims**: Allows token creators to claim their 75% share of pool trading fees without altering the underlying liquidity.
 
 * **`BSCookTimelock.sol`**
-  Governance execution module enforcing delay windows for any protocol parameter changes or critical administrative actions, protecting users from sudden changes.
+  Time-delayed governance controller enforcing a 12 to 48-hour delay window on all critical administrative actions.
 
 * **`BSCookMultiSig.sol`**
-  Multi-signature contract ensuring that sensitive administrative operations require consensus among designated protocol guardians.
+  2-of-3 threshold multi-signature contract governing emergency pause triggers and temporary fee-freeze disputes (capped at 7 days).
 
 * **`ContractValidation.sol`**
-  Shared utility library enforcing input sanity checks, address validations, and call verifications across contracts.
+  Shared library enforcing input sanity checks, contract address verifications, and execution guards.
 
 ---
 
 ## 🚀 Deployed Addresses (BNB Smart Chain Mainnet)
 
-All core protocol contracts are deployed and verified on **BNB Smart Chain (Chain ID: 56)**:
+All protocol contracts are deployed and verified on **BNB Smart Chain (Chain ID: 56)**:
 
 | Contract | Mainnet Address | Explorer Link |
 | :--- | :--- | :--- |
@@ -73,41 +81,29 @@ All core protocol contracts are deployed and verified on **BNB Smart Chain (Chai
 
 ---
 
-## 🛡 Security & Best Practices
+## 🛡 Security & Transparency Highlights
 
-1. **Native Uniswap V4 Architecture**: Leverages singleton PoolManager architecture, hook validation, and `Permit2` for gas efficiency.
-2. **Reentrancy Protection**: All user and liquidity interactions utilize OpenZeppelin's `ReentrancyGuard`.
-3. **Safe Token Transfers**: Token balances and distributions leverage OpenZeppelin's `SafeERC20`.
-4. **Decentralized Ownership**: Two-step ownership transfers (`Ownable2Step`) managed by the `BSCookTimelock` and multi-signature consensus.
-5. **Transparent Liquidity**: LP positions locked transparently in `BSCookLocker` verifiable on-chain.
-6. **Via-IR Optimized**: Compiled with Solidity `0.8.20` using `--via-ir` and 800 optimizer runs for maximum bytecode efficiency.
+1. **Rug-Pull Immunity**: LP positions are locked permanently upon creation. The locker contract has no code path to remove or burn active liquidity.
+2. **Immutable Token Logic**: Tokens have no owner, no tax logic, and no minting mechanism post-deployment.
+3. **Admin Token Safety**: `BSCookFactory.rescueERC20` contains explicit safeguards forbidding the rescue of launched tokens or WBNB.
+4. **Governed Upgrades**: Any future locker changes require `queueLockerChange` with a mandatory 2-day queue delay, affecting only future launches.
+5. **Compiler Specs**: Compiled with Solidity `0.8.20` using `--via-ir` and 800 optimizer runs.
 
 ---
 
-## 💻 Build & Compile
+## 💻 Build & Verification
 
 ### Prerequisites
-* [Node.js](https://nodejs.org/) (v18 or higher recommended)
-* [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+* [Node.js](https://nodejs.org/) (v18+)
+* [npm](https://www.npmjs.com/)
 
-### Installation
+### Installation & Compile
 
 ```bash
-git clone <your-repo-url>
-cd bscdapp
+git clone https://github.com/bscook/bscook.git
+cd bscook
 npm install
-```
-
-### Compile Contracts
-
-```bash
 npx hardhat compile
-```
-
-### Run Tests
-
-```bash
-npx hardhat test
 ```
 
 ---
